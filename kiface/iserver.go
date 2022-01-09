@@ -1,10 +1,10 @@
 package kiface
 
 type IServer interface {
-	//start server
+	// Start start server
 	Start()
-	//stop server
+	// Stop stop server
 	Stop()
-	//run server
+	// Serve run server
 	Serve()
 }
