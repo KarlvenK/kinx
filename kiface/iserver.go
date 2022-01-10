@@ -7,4 +7,6 @@ type IServer interface {
 	Stop()
 	// Serve run server
 	Serve()
+	// AddRouter add router func for current service so that client can use
+	AddRouter(router IRouter)
 }

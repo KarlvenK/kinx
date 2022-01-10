@@ -16,21 +16,21 @@ type Connection struct {
 	//current stat
 	isClosed bool
 
-	//API that current conn binding
-	handleAPI kiface.HandleFunc
-
 	//notify current conn to exit
 	ExitChan chan bool
+
+	//curr conn Router
+	Router kiface.IRouter
 }
 
 // NewConnection Init connection module
-func NewConnection(conn *net.TCPConn, connID uint32, callbackApi kiface.HandleFunc) *Connection {
+func NewConnection(conn *net.TCPConn, connID uint32, router kiface.IRouter) *Connection {
 	c := &Connection{
-		Conn:      conn,
-		ConnID:    connID,
-		handleAPI: callbackApi,
-		isClosed:  false,
-		ExitChan:  make(chan bool, 1),
+		Conn:     conn,
+		ConnID:   connID,
+		Router:   router,
+		isClosed: false,
+		ExitChan: make(chan bool, 1),
 	}
 	return c
 }
@@ -50,17 +50,22 @@ func (c *Connection) StartReader() {
 	for {
 		//Read the data from client
 		buf := make([]byte, 512)
-		cnt, err := c.Conn.Read(buf)
+		_, err := c.Conn.Read(buf)
 		if err != nil {
 			fmt.Println("recv buf err ", err)
 			continue
 		}
 
-		//run HandleAPI
-		if err := c.handleAPI(c.Conn, buf, cnt); err != nil {
-			fmt.Println("ConnID = ", c.ConnID, "handle is err", err)
-			break
+		req := Request{
+			conn: c,
+			data: buf,
 		}
+		go func(request kiface.IRequest) {
+			c.Router.PreHandle(request)
+			c.Router.Handle(request)
+			c.Router.PostHandle(request)
+		}(&req)
+		//find the router of conn
 	}
 }
 
@@ -79,7 +84,7 @@ func (c *Connection) Stop() {
 
 }
 
-func (c *Connection) GetConnection() *net.TCPConn {
+func (c *Connection) GetTCPConnection() *net.TCPConn {
 	return c.Conn
 }
 

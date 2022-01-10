@@ -1,7 +1,6 @@
 package knet
 
 import (
-	"errors"
 	"fmt"
 	"github.com/KarlvenK/kinx/kiface"
 	"net"
@@ -18,7 +17,11 @@ type Server struct {
 	IP string
 	//listened port
 	Port int
+	//current server add a router,
+	Router kiface.IRouter
 }
+
+/*
 
 func callback(conn *net.TCPConn, data []byte, cnt int) error {
 	fmt.Println("[Conn Handle] CallBackToClient...")
@@ -28,6 +31,8 @@ func callback(conn *net.TCPConn, data []byte, cnt int) error {
 	}
 	return nil
 }
+
+*/
 
 func (s *Server) Start() {
 	fmt.Printf("[Start] Server Listener at IP:%s, Port %d, is starting\n", s.IP, s.Port)
@@ -57,7 +62,7 @@ func (s *Server) Start() {
 				continue
 			}
 
-			dealConn := NewConnection(conn, cid, callback)
+			dealConn := NewConnection(conn, cid, s.Router)
 			cid++
 
 			go dealConn.Start()
@@ -80,6 +85,11 @@ func (s *Server) Serve() {
 
 }
 
+func (s *Server) AddRouter(router kiface.IRouter) {
+	s.Router = router
+	fmt.Println("Add Router succ!")
+}
+
 // NewServer init Server module
 func NewServer(name string) kiface.IServer {
 	s := &Server{
@@ -87,6 +97,7 @@ func NewServer(name string) kiface.IServer {
 		IPVersion: "tcp4",
 		IP:        "0.0.0.0",
 		Port:      8999,
+		Router:    nil,
 	}
 	return s
 }
