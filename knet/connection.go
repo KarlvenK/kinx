@@ -3,6 +3,7 @@ package knet
 import (
 	"fmt"
 	"github.com/KarlvenK/kinx/kiface"
+	"github.com/KarlvenK/kinx/utils"
 	"net"
 )
 
@@ -49,7 +50,7 @@ func (c *Connection) StartReader() {
 
 	for {
 		//Read the data from client
-		buf := make([]byte, 512)
+		buf := make([]byte, utils.GlobalObject.MaxPackageSize)
 		_, err := c.Conn.Read(buf)
 		if err != nil {
 			fmt.Println("recv buf err ", err)
@@ -78,7 +79,7 @@ func (c *Connection) Stop() {
 	c.isClosed = true
 
 	//close socket
-	c.Conn.Close()
+	_ = c.Conn.Close()
 
 	close(c.ExitChan)
 
