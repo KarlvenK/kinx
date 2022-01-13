@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/KarlvenK/kinx/kiface"
+	"github.com/KarlvenK/kinx/utils"
 	"io"
 	"net"
 )
@@ -97,9 +98,14 @@ func (c *Connection) StartReader() {
 			conn: c,
 			msg:  msg,
 		}
-		//find the corresponding router of conn
-		//do the handle func
-		go c.MsgHandler.DoMsgHandler(&req)
+
+		if utils.GlobalObject.WorkerPoolSize > 0 {
+			c.MsgHandler.SendMsgToTaskQueue(&req)
+		} else {
+			//find the corresponding router of conn
+			//do the handle func
+			go c.MsgHandler.DoMsgHandler(&req)
+		}
 	}
 }
 

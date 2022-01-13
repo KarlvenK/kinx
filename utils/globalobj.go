@@ -15,9 +15,11 @@ type GlobalObj struct {
 	TcpPort   int            //port
 	Name      string         //server name
 
-	Version        string
-	MaxConn        int
-	MaxPackageSize uint32
+	Version          string
+	MaxConn          int
+	MaxPackageSize   uint32
+	WorkerPoolSize   uint32 //the cnt of workerpools
+	MaxWorkerTaskLen uint32 // maximum of tasks in one workerpool
 }
 
 var GlobalObject *GlobalObj
@@ -39,12 +41,14 @@ func (g *GlobalObj) Reload() {
 func init() {
 	//default
 	GlobalObject = &GlobalObj{
-		Name:           "kinxServerApp",
-		Version:        "v0.4",
-		TcpPort:        8999,
-		Host:           "0.0.0.0",
-		MaxConn:        1000,
-		MaxPackageSize: 4096,
+		Name:             "kinxServerApp",
+		Version:          "v0.4",
+		TcpPort:          8999,
+		Host:             "0.0.0.0",
+		MaxConn:          1000,
+		MaxPackageSize:   4096,
+		WorkerPoolSize:   10,
+		MaxWorkerTaskLen: 1024,
 	}
 
 	//load from knix.json

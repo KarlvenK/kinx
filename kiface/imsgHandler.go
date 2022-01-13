@@ -5,4 +5,8 @@ type IMsgHandle interface {
 	DoMsgHandler(request IRequest)
 	// AddRouter add handle func
 	AddRouter(msgID uint32, router IRouter)
+
+	StartWorkerPool()
+
+	SendMsgToTaskQueue(request IRequest)
 }
