@@ -1,9 +1,12 @@
 package knet
 
 type Message struct {
+	//head
 	Id      uint32
 	DataLen uint32
-	Data    []byte
+
+	//data
+	Data []byte
 }
 
 func NewMsgPackage(id uint32, data []byte) *Message {
