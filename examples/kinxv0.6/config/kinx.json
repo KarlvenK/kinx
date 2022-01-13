@@ -1,6 +1,6 @@
 {
   "Name":           "kinxServerApp",
-  "Version":        "v0.5",
+  "Version":        "v0.6",
   "TcpPort":        8999,
   "Host":           "127.0.0.1",
   "MaxConn":        3,
