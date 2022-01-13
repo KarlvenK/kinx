@@ -13,8 +13,8 @@ type IConnection interface {
 	GetConnID() uint32
 	// RemoteAddr get remote client TCP stat IP port
 	RemoteAddr() net.Addr
-	// Send data to client
-	Send(data []byte) error
+	// SendMsg data to client
+	SendMsg(uint32, []byte) error
 }
 
 // HandleFunc define a func handle work
