@@ -21,18 +21,17 @@ type Connection struct {
 	//notify current conn to exit
 	ExitChan chan bool
 
-	//curr conn Router
-	Router kiface.IRouter
+	MsgHandler kiface.IMsgHandle
 }
 
 // NewConnection Init connection module
-func NewConnection(conn *net.TCPConn, connID uint32, router kiface.IRouter) *Connection {
+func NewConnection(conn *net.TCPConn, connID uint32, msgHandler kiface.IMsgHandle) *Connection {
 	c := &Connection{
-		Conn:     conn,
-		ConnID:   connID,
-		Router:   router,
-		isClosed: false,
-		ExitChan: make(chan bool, 1),
+		Conn:       conn,
+		ConnID:     connID,
+		MsgHandler: msgHandler,
+		isClosed:   false,
+		ExitChan:   make(chan bool, 1),
 	}
 	return c
 }
@@ -87,12 +86,9 @@ func (c *Connection) StartReader() {
 			conn: c,
 			msg:  msg,
 		}
-		go func(request kiface.IRequest) {
-			c.Router.PreHandle(request)
-			c.Router.Handle(request)
-			c.Router.PostHandle(request)
-		}(&req)
-		//find the router of conn
+		//find the corresponding router of conn
+		//do the handle func
+		go c.MsgHandler.DoMsgHandler(&req)
 	}
 }
 

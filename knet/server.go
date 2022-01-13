@@ -18,8 +18,8 @@ type Server struct {
 	IP string
 	//listened port
 	Port int
-	//current server add a router,
-	Router kiface.IRouter
+	//current server's msgHandler
+	MsgHandler kiface.IMsgHandle
 }
 
 /*
@@ -64,7 +64,7 @@ func (s *Server) Start() {
 				continue
 			}
 
-			dealConn := NewConnection(conn, cid, s.Router)
+			dealConn := NewConnection(conn, cid, s.MsgHandler)
 			cid++
 
 			go dealConn.Start()
@@ -87,19 +87,19 @@ func (s *Server) Serve() {
 
 }
 
-func (s *Server) AddRouter(router kiface.IRouter) {
-	s.Router = router
+func (s *Server) AddRouter(msgID uint32, router kiface.IRouter) {
+	s.MsgHandler.AddRouter(msgID, router)
 	fmt.Println("Add Router succ!")
 }
 
 // NewServer init Server module
 func NewServer() kiface.IServer {
 	s := &Server{
-		Name:      utils.GlobalObject.Name,
-		IPVersion: "tcp4",
-		IP:        utils.GlobalObject.Host,
-		Port:      utils.GlobalObject.TcpPort,
-		Router:    nil,
+		Name:       utils.GlobalObject.Name,
+		IPVersion:  "tcp4",
+		IP:         utils.GlobalObject.Host,
+		Port:       utils.GlobalObject.TcpPort,
+		MsgHandler: NewMsgHandle(),
 	}
 	return s
 }

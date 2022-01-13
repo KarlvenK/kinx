@@ -8,5 +8,5 @@ type IServer interface {
 	// Serve run server
 	Serve()
 	// AddRouter add router func for current service so that client can use
-	AddRouter(router IRouter)
+	AddRouter(msgID uint32, router IRouter)
 }
