@@ -1,0 +1,9 @@
+{
+  "Name":           "kinxServerApp",
+  "Version":        "v0.9",
+  "TcpPort":        8999,
+  "Host":           "127.0.0.1",
+  "MaxConn":        3,
+  "MaxPackageSize": 4096,
+  "WorkPoolSize": 10
+}
