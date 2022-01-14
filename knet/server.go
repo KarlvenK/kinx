@@ -22,6 +22,10 @@ type Server struct {
 	MsgHandler kiface.IMsgHandle
 	//connManager of curr server
 	ConnMgr kiface.IConnManager
+	//hook func when start
+	OnConnStart func(conn kiface.IConnection)
+	//hook func when stop
+	OnConnStop func(conn kiface.IConnection)
 }
 
 /*
@@ -119,4 +123,26 @@ func NewServer() kiface.IServer {
 
 func (s *Server) GetConnMgr() kiface.IConnManager {
 	return s.ConnMgr
+}
+
+func (s *Server) SetOnConnStart(hookFunc func(conn kiface.IConnection)) {
+	s.OnConnStart = hookFunc
+}
+
+func (s *Server) SetOnConnStop(hookFunc func(conn kiface.IConnection)) {
+	s.OnConnStop = hookFunc
+}
+
+func (s *Server) CallOnConnStart(conn kiface.IConnection) {
+	if s.OnConnStart != nil {
+		fmt.Println("--->Call OnConnStart()...")
+		s.OnConnStart(conn)
+	}
+}
+
+func (s *Server) CallOnConnStop(conn kiface.IConnection) {
+	if s.OnConnStop != nil {
+		fmt.Println("--->Call OnConnStop()...")
+		s.OnConnStop(conn)
+	}
 }

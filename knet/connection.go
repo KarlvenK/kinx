@@ -49,7 +49,7 @@ func (c *Connection) Start() {
 	fmt.Println("Conn Start()... ConnID = ", c.Conn)
 	go c.StartReader()
 	go c.StartWriter()
-
+	c.TcpServer.CallOnConnStart(c)
 }
 
 func (c *Connection) StartWriter() {
@@ -121,6 +121,8 @@ func (c *Connection) Stop() {
 		return
 	}
 	c.isClosed = true
+
+	c.TcpServer.CallOnConnStop(c)
 
 	//close socket
 	_ = c.Conn.Close()
