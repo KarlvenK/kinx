@@ -36,9 +36,25 @@ func (b *HelloRouter) Handle(request kiface.IRequest) {
 	}
 }
 
+func DoConnBegin(conn kiface.IConnection) {
+	fmt.Println("===>DoConnBegin is Called...")
+	if err := conn.SendMsg(202, []byte("DoConn Begin")); err != nil {
+		fmt.Println(err)
+	}
+}
+
+func DoConnAfter(conn kiface.IConnection) {
+	fmt.Println("===>DoConnAfter is Called...")
+	fmt.Println("conn ID = ", conn.GetConnID(), "is lost...")
+}
+
 func main() {
 	s := knet.NewServer()
 	s.AddRouter(0, &PingRouter{})
 	s.AddRouter(1, &HelloRouter{})
+
+	s.SetOnConnStart(DoConnBegin)
+	s.SetOnConnStop(DoConnAfter)
+
 	s.Serve()
 }
