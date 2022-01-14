@@ -15,7 +15,10 @@ type IConnection interface {
 	RemoteAddr() net.Addr
 	// SendMsg data to client
 	SendMsg(uint32, []byte) error
-}
 
-// HandleFunc define a func handle work
-type HandleFunc func(*net.TCPConn, []byte, int) error
+	SetProperty(key string, value interface{})
+
+	GetProperty(key string) (interface{}, error)
+
+	RemoveProperty(key string)
+}

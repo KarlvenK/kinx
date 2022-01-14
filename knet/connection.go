@@ -7,6 +7,7 @@ import (
 	"github.com/KarlvenK/kinx/utils"
 	"io"
 	"net"
+	"sync"
 )
 
 type Connection struct {
@@ -28,6 +29,10 @@ type Connection struct {
 	msgChan chan []byte
 
 	MsgHandler kiface.IMsgHandle
+
+	property map[string]interface{}
+
+	propertyLock sync.RWMutex
 }
 
 // NewConnection Init connection module
@@ -40,6 +45,7 @@ func NewConnection(server kiface.IServer, conn *net.TCPConn, connID uint32, msgH
 		isClosed:   false,
 		msgChan:    make(chan []byte),
 		ExitChan:   make(chan bool, 1),
+		property:   make(map[string]interface{}),
 	}
 	c.TcpServer.GetConnMgr().Add(c)
 	return c
@@ -162,4 +168,27 @@ func (c *Connection) SendMsg(msgId uint32, data []byte) error {
 	c.msgChan <- binaryMsg
 
 	return nil
+}
+
+func (c *Connection) SetProperty(key string, value interface{}) {
+	c.propertyLock.Lock()
+	defer c.propertyLock.Unlock()
+	c.property[key] = value
+}
+
+func (c *Connection) GetProperty(key string) (interface{}, error) {
+	c.propertyLock.RLock()
+	defer c.propertyLock.RUnlock()
+	if value, ok := c.property[key]; ok {
+		return value, nil
+	} else {
+		return nil, errors.New("no property found")
+	}
+}
+
+func (c *Connection) RemoveProperty(key string) {
+	c.propertyLock.Lock()
+	defer c.propertyLock.Unlock()
+
+	delete(c.property, key)
 }
