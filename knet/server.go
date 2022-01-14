@@ -20,6 +20,8 @@ type Server struct {
 	Port int
 	//current server's msgHandler
 	MsgHandler kiface.IMsgHandle
+	//connManager of curr server
+	ConnMgr kiface.IConnManager
 }
 
 /*
@@ -67,7 +69,13 @@ func (s *Server) Start() {
 				continue
 			}
 
-			dealConn := NewConnection(conn, cid, s.MsgHandler)
+			if s.ConnMgr.Len() >= utils.GlobalObject.MaxConn {
+				fmt.Println("Too many Connections MaxConn = ", utils.GlobalObject.MaxConn)
+				_ = conn.Close()
+				continue
+			}
+
+			dealConn := NewConnection(s, conn, cid, s.MsgHandler)
 			cid++
 
 			go dealConn.Start()
@@ -76,7 +84,8 @@ func (s *Server) Start() {
 }
 
 func (s *Server) Stop() {
-	//todo
+	fmt.Println("[stop]Kinx server name ", s.Name)
+	s.ConnMgr.ClearConn()
 }
 
 func (s *Server) Serve() {
@@ -103,6 +112,11 @@ func NewServer() kiface.IServer {
 		IP:         utils.GlobalObject.Host,
 		Port:       utils.GlobalObject.TcpPort,
 		MsgHandler: NewMsgHandle(),
+		ConnMgr:    NewConnManager(),
 	}
 	return s
+}
+
+func (s *Server) GetConnMgr() kiface.IConnManager {
+	return s.ConnMgr
 }

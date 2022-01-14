@@ -10,6 +10,9 @@ import (
 )
 
 type Connection struct {
+	//server that curr conn belongs to
+	TcpServer kiface.IServer
+
 	//socket TCP
 	Conn *net.TCPConn
 
@@ -28,8 +31,9 @@ type Connection struct {
 }
 
 // NewConnection Init connection module
-func NewConnection(conn *net.TCPConn, connID uint32, msgHandler kiface.IMsgHandle) *Connection {
+func NewConnection(server kiface.IServer, conn *net.TCPConn, connID uint32, msgHandler kiface.IMsgHandle) *Connection {
 	c := &Connection{
+		TcpServer:  server,
 		Conn:       conn,
 		ConnID:     connID,
 		MsgHandler: msgHandler,
@@ -37,6 +41,7 @@ func NewConnection(conn *net.TCPConn, connID uint32, msgHandler kiface.IMsgHandl
 		msgChan:    make(chan []byte),
 		ExitChan:   make(chan bool, 1),
 	}
+	c.TcpServer.GetConnMgr().Add(c)
 	return c
 }
 
@@ -120,6 +125,9 @@ func (c *Connection) Stop() {
 	//close socket
 	_ = c.Conn.Close()
 	c.ExitChan <- true
+
+	c.TcpServer.GetConnMgr().Remove(c)
+
 	close(c.ExitChan)
 	close(c.msgChan)
 

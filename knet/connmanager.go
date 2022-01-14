@@ -20,9 +20,8 @@ func NewConnManager() *ConnManager {
 
 func (connMgr *ConnManager) Add(conn kiface.IConnection) {
 	connMgr.connLock.Lock()
-	defer connMgr.connLock.Unlock()
-
 	connMgr.connections[conn.GetConnID()] = conn
+	connMgr.connLock.Unlock()
 	fmt.Println("connection add to ConnManager successfully: conn num = ", connMgr.Len())
 }
 
